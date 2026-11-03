@@ -1,8 +1,7 @@
 package sa.factory.chamberslegalconsu.model
 
-import kotlinx.serialization.Serializable
+import java.io.Serializable
 
-@Serializable
 data class ChambersLegalItem(
     val id: String,
     val title: String,
@@ -11,9 +10,8 @@ data class ChambersLegalItem(
     val badge: String = "معتمد",
     val category: String = "عام",
     val status: String = "AVAILABLE"
-)
+) : Serializable
 
-@Serializable
 data class ChambersLegalOrder(
     val orderId: String,
     val items: List<ChambersLegalItem>,
@@ -23,9 +21,8 @@ data class ChambersLegalOrder(
     val paymentMethod: String = "Mada Contactless EMV",
     val timestamp: Long = System.currentTimeMillis(),
     val status: String = "CONFIRMED"
-)
+) : Serializable
 
-@Serializable
 data class ChambersLegalTelemetry(
     val peripheralName: String,
     val status: String,
@@ -33,11 +30,37 @@ data class ChambersLegalTelemetry(
     val batteryPct: Int = 98,
     val signalDbm: Int = -58,
     val timestamp: Long = System.currentTimeMillis()
-)
+) : Serializable
 
-sealed interface UiState<out T> {
-    object Loading : UiState<Nothing>
-    data class Success<T>(val data: T) : UiState<T>
-    data class Error(val message: String) : UiState<Nothing>
-    object Empty : UiState<Nothing>
+sealed class UiState<out T> {
+    object Loading : UiState<Nothing>()
+    data class Success<T>(val data: T) : UiState<T>()
+    data class Error(val message: String) : UiState<Nothing>()
+    object Empty : UiState<Nothing>()
 }
+
+data class LegalContractMetadata(
+    val contractId: String,
+    val lawyerLicenseNo: String,
+    val clientNationalId: String,
+    val contractCategory: String,
+    val stipulations: List<String>,
+    val feeSar: Double,
+    val timestampEpochMs: Long = System.currentTimeMillis()
+) : Serializable
+
+data class HsmDigitalSignature(
+    val keyId: String,
+    val algorithm: String = "SHA256withECDSA",
+    val canonicalDigestHex: String,
+    val signatureDerHex: String,
+    val publicKeyDerHex: String
+) : Serializable
+
+data class NotarizedContractSeal(
+    val contractId: String,
+    val sealUuid: String,
+    val digitalSignature: HsmDigitalSignature,
+    val isVerified: Boolean,
+    val notarizedAtEpochMs: Long = System.currentTimeMillis()
+) : Serializable
